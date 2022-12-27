@@ -3,7 +3,6 @@ from sensor.exception import SensorException
 from sensor.logger import logging
 from datetime import datetime
 
-
 FILE_NAME = "sensor.csv"
 TRAIN_FILE_NAME = "train.csv"
 TEST_FILE_NAME = "test.csv"
@@ -17,7 +16,7 @@ class TrainingPipelineConfig:
         try:
             self.artifact_dir = os.path.join(os.getcwd(),"artifact",f"{datetime.now().strftime('%m%d%Y__%H%M%S')}")
         except Exception  as e:
-            raise SensorException(e,sys) 
+            raise SensorException(e,sys)     
 
 
 class DataIngestionConfig:
@@ -38,9 +37,8 @@ class DataIngestionConfig:
         try:
             return self.__dict__
         except Exception  as e:
-            raise SensorException(e,sys)  
+            raise SensorException(e,sys)     
 
-            
 class DataValidationConfig:
 
     def __init__(self,training_pipeline_config:TrainingPipelineConfig):
@@ -48,7 +46,6 @@ class DataValidationConfig:
         self.report_file_path=os.path.join(self.data_validation_dir, "report.yaml")
         self.missing_threshold:float = 0.2
         self.base_file_path = os.path.join("aps_failure_training_set1.csv")
-
 
 class DataTransformationConfig:
 
@@ -58,7 +55,7 @@ class DataTransformationConfig:
         self.transformed_train_path =  os.path.join(self.data_transformation_dir,"transformed",TRAIN_FILE_NAME.replace("csv","npz"))
         self.transformed_test_path =os.path.join(self.data_transformation_dir,"transformed",TEST_FILE_NAME.replace("csv","npz"))
         self.target_encoder_path = os.path.join(self.data_transformation_dir,"target_encoder",TARGET_ENCODER_OBJECT_FILE_NAME)
-        
+
 class ModelTrainerConfig:
 
     def __init__(self,training_pipeline_config:TrainingPipelineConfig):
@@ -67,6 +64,17 @@ class ModelTrainerConfig:
         self.expected_score = 0.7
         self.overfitting_threshold = 0.1
 
-        
-class ModelEvaluationConfig:...
-class ModelPusherConfig:...
+
+class ModelEvaluationConfig:
+    def __init__(self,training_pipeline_config:TrainingPipelineConfig):
+        self.change_threshold = 0.01
+
+class ModelPusherConfig:
+
+    def __init__(self,training_pipeline_config:TrainingPipelineConfig):
+        self.model_pusher_dir = os.path.join(training_pipeline_config.artifact_dir , "model_pusher")
+        self.saved_model_dir = os.path.join("saved_models")
+        self.pusher_model_dir = os.path.join(self.model_pusher_dir,"saved_models")
+        self.pusher_model_path = os.path.join(self.pusher_model_dir,MODEL_FILE_NAME)
+        self.pusher_transformer_path = os.path.join(self.pusher_model_dir,TRANSFORMER_OBJECT_FILE_NAME)
+        self.pusher_target_encoder_path = os.path.join(self.pusher_model_dir,TARGET_ENCODER_OBJECT_FILE_NAME)
